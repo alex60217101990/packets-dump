@@ -13,7 +13,9 @@ GO_SOURCE := $(shell find .. -name \dump.go -type f)
 GO_BINARY := dump
 
 EBPF_SOURCE := $(shell find .. -name \dump.c -type f)
+EBPF_SOURCE_FW := $(shell find .. -name \kern.c -type f)
 EBPF_BINARY := ../tmp/dump.elf
+EBPF_BINARY_FW := ../tmp/fw.elf
 
 # all: build_bpf build_go
 
@@ -45,6 +47,7 @@ clean:
 ebpf-elf-build: $(EBPF_SOURCE)
 	@printf "${COLOR_LIGHT_PURPLE}Building .elf binary...${COLOR_NC}\n"
 	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $^  -o $(EBPF_BINARY)
+	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $(EBPF_SOURCE_FW)  -o $(EBPF_BINARY_FW)
 
 go-build:
 	$(GOCMD) clean -modcache
@@ -90,3 +93,5 @@ help: Makefile
 # sudo docker build --build-arg MOD_FILE="$(cat ./go.mod)" --build-arg SUM_FILE="$(cat ./go.sum)" -f ./deploy/Dockerfile -t dump .
 
 # curl -s localhost:80 >/dev/null && echo Success. || echo Fail.
+
+# docker inspect 115c71d8e865 --format='{{.Id}}'
