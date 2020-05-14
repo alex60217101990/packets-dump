@@ -17,6 +17,8 @@ int xdp_fw(struct xdp_md *xdp_ctx)
     */
     __u32 action = XDP_PASS;
 
+    bpf_printk("got packet: %p\n", xdp_ctx);
+
     /*
         Convert the supplied 'xdp_md' structure to one of our custom 'context' structures for easy handling
         throughout this program.

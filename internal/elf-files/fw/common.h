@@ -84,7 +84,7 @@ enum port_protocol
 */
 struct port_key
 {
-    enum port_type type;
+    enum port_type type_p;
     enum port_protocol proto;
     __u32 port;
 };
@@ -95,7 +95,7 @@ struct counters
     __u64 bytes;
 };
 
-struct bpf_lpm_trie_key *key = alloca(v4 ? sizeof(struct lpm_v4_key) : sizeof(struct lpm_v6_key));
+//struct bpf_lpm_trie_key *key = alloca(v4 ? sizeof(struct lpm_v4_key) : sizeof(struct lpm_v6_key));
 
 #ifndef XDP_MAX_ACTIONS
 #define XDP_MAX_ACTIONS (XDP_REDIRECT + 1)

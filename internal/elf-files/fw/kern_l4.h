@@ -52,11 +52,11 @@ static __always_inline __u32 parse_udp(struct context *ctx)
         map defined above. One for the source port and then another for the destination port.
     */
     struct port_key src_key = {
-        .type = source_port,
+        .type_p = source_port,
         .proto = udp_port,
     };
     struct port_key dst_key = {
-        .type = destination_port,
+        .type_p = destination_port,
         .proto = udp_port,
     };
 
@@ -108,11 +108,11 @@ static __always_inline __u32 parse_tcp(struct context *ctx)
         map defined above. One for the source port and then another for the destination port.
     */
     struct port_key src_key = {
-        .type = source_port,
+        .type_p = source_port,
         .proto = tcp_port,
     };
     struct port_key dst_key = {
-        .type = destination_port,
+        .type_p = destination_port,
         .proto = tcp_port,
     };
 
