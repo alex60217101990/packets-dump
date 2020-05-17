@@ -8,4 +8,7 @@ const (
 	IPv4Blacklist string = "v4_blacklist"
 	IPv6Blacklist string = "v6_blacklist"
 	PortBlacklist string = "port_blacklist"
+
+	// Perf map names
+	PortPerfMap string = "perfmap_port"
 )

@@ -1,6 +1,8 @@
 package ebpf
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"os"
@@ -16,10 +18,11 @@ import (
 )
 
 type BpfLoader struct {
-	configs    *configs.Configs
-	bpf        goebpf.System
-	xdpMapsMap sync.Map // map[string]goebpf.Map
-	xdpProgMap sync.Map // map[string]goebpf.Program
+	configs        *configs.Configs
+	bpf            goebpf.System
+	xdpMapsMap     sync.Map // map[string]goebpf.Map
+	xdpProgMap     sync.Map // map[string]goebpf.Program
+	xdpPerfMapsMap sync.Map
 }
 
 func NewBpfLoader(options ...func(*BpfLoader) error) *BpfLoader {
@@ -65,6 +68,13 @@ func (l *BpfLoader) Init() {
 	}
 	// TODO: load other files...
 	l.printBpfInfo()
+	// Find special "PERF_EVENT" eBPF map
+	perfmapPort := l.bpf.GetMapByName(consts.PortPerfMap)
+	if perfmapPort == nil {
+		log.Println(errors.ErrMapNotFound(consts.PortPerfMap))
+		os.Exit(1)
+	}
+	l.xdpMapsMap.Store(consts.PortPerfMap, perfmapPort)
 	// Get eBPF maps:
 	macBlacklist := l.bpf.GetMapByName(consts.MacBlacklist)
 	if macBlacklist == nil {
@@ -114,6 +124,7 @@ func (l *BpfLoader) Init() {
 		os.Exit(1)
 	}
 	log.Printf("Attach: %s namespace success.\n", *l.configs.Firewall.NetIfaceName)
+	// err = l.ListenPerfMap(consts.PortPerfMap)
 	err = l.FwLoadBlacklists()
 	if err != nil {
 		log.Println(errors.ErrLoadFwBlacklists(err))
@@ -122,19 +133,19 @@ func (l *BpfLoader) Init() {
 }
 
 func (l *BpfLoader) FwLoadBlacklists() (err error) {
-	err = l.loadMacBlacklist()
-	if err != nil {
-		return err
-	}
+	// err = l.loadMacBlacklist()
+	// if err != nil {
+	// 	return err
+	// }
 	err = l.loadPortBlacklist()
 	if err != nil {
 		return err
 	}
-	err = l.loadIPv4Blacklist()
-	if err != nil {
-		return err
-	}
-	err = l.loadIPv6Blacklist()
+	// err = l.loadIPv4Blacklist()
+	// if err != nil {
+	// 	return err
+	// }
+	// err = l.loadIPv6Blacklist()
 	return err
 }
 
@@ -160,7 +171,9 @@ func (l *BpfLoader) loadMacBlacklist() error {
 func (l *BpfLoader) loadIPv4Blacklist() (err error) {
 	var ipKey cgotypes.LpmV4Key
 	for _, ipStr := range l.configs.Firewall.IPv4BlackList {
+		fmt.Println(ipStr)
 		ipKey, err = cgotypes.ParseFromSrtV4(ipStr)
+		fmt.Println(ipStr, ipKey, err)
 		if err == nil {
 			err = l.Upsert(ipKey)
 		}
@@ -185,29 +198,53 @@ func (l *BpfLoader) loadPortBlacklist() (err error) {
 			err = l.Upsert(*portKey)
 		}
 	}
+	l.Upsert(cgotypes.PortKeyGo{
+		Type:  0,
+		Proto: 0,
+		Port:  3128,
+	})
 	return err
 }
 
 func (l *BpfLoader) Upsert(event interface{}) error {
 	switch e := event.(type) {
+	case cgotypes.PortKeyGo:
+		if m, ok := l.xdpMapsMap.Load(consts.PortBlacklist); ok {
+			err := m.(goebpf.Map).Upsert(e, 1)
+
+			val1, err := m.(goebpf.Map).LookupInt(cgotypes.PortKeyGo{
+				Type:  0,
+				Proto: 0,
+				Port:  3128,
+			})
+			log.Println(val1, err)
+
+			return err
+		}
 	case cgotypes.PortKey:
 		fmt.Println(111)
 		if m, ok := l.xdpMapsMap.Load(consts.PortBlacklist); ok {
-			err := m.(goebpf.Map).Upsert(e, true)
-			fmt.Println(222)
+			err := m.(goebpf.Map).Upsert(e, 1)
+			fmt.Println(222, err)
+
+			val1, err := m.(goebpf.Map).LookupInt(cgotypes.GetPortKey(cgotypes.DestinationPort, cgotypes.UDPPort, 8552))
+			log.Println(val1, err)
+
 			return err
 		}
 	case cgotypes.LpmV4Key:
+		fmt.Println(333)
 		if m, ok := l.xdpMapsMap.Load(consts.IPv4Blacklist); ok {
-			return m.(goebpf.Map).Upsert(e, true)
+			fmt.Println(444)
+			return m.(goebpf.Map).Upsert(e, 2)
 		}
 	case cgotypes.LpmV6Key:
 		if m, ok := l.xdpMapsMap.Load(consts.IPv6Blacklist); ok {
-			return m.(goebpf.Map).Upsert(e, true)
+			return m.(goebpf.Map).Upsert(e, 3)
 		}
 	case cgotypes.MacKey:
 		if m, ok := l.xdpMapsMap.Load(consts.MacBlacklist); ok {
-			return m.(goebpf.Map).Upsert(e, true)
+			return m.(goebpf.Map).Upsert(e, 4)
 		}
 	}
 	return errors.ErrXdpMapKeyDataType
@@ -243,6 +280,10 @@ func (l *BpfLoader) AttachIfaceToFwXdp(iface string) error {
 }
 
 func (l *BpfLoader) Close() (err error) {
+	// l.xdpPerfMapsMap.Range(func(k, v interface{}) bool {
+	// 	v.(*goebpf.PerfEvents).Stop()
+	// 	return true
+	// })
 	l.xdpMapsMap.Range(func(k, v interface{}) bool {
 		err = v.(goebpf.Map).Close()
 		return true
@@ -253,6 +294,44 @@ func (l *BpfLoader) Close() (err error) {
 		return true
 	})
 	return err
+}
+
+func (l *BpfLoader) ListenPerfMap(mapName string) (err error) {
+	// Start listening to Perf Events
+	if m, ok := l.xdpMapsMap.Load(mapName); ok {
+		var (
+			perf *goebpf.PerfEvents
+			//perfEvents <-chan []byte
+		)
+		perf, err = goebpf.NewPerfEvents(m.(goebpf.Map))
+		if err != nil {
+			return err
+		}
+		perfEvents, err := perf.StartForAllProcessesAndCPUs(4096)
+		if err != nil {
+			return fmt.Errorf("perf.StartForAllProcessesAndCPUs(): %v", err)
+		}
+		l.xdpPerfMapsMap.Store(mapName, perf)
+		go func() {
+			var key cgotypes.PortKey
+			fmt.Println("Listen start:")
+			for {
+				select {
+				case data, ok := <-perfEvents:
+					if ok {
+						err = binary.Read(bytes.NewBuffer(data[:]), binary.BigEndian, &key)
+						if err != nil {
+							log.Println("Parse port key error:", err)
+							os.Exit(1)
+						}
+						fmt.Println(key)
+					}
+				}
+			}
+		}()
+		return nil
+	}
+	return fmt.Errorf("xdp map: %s not found", mapName)
 }
 
 func (l *BpfLoader) printBpfInfo() {

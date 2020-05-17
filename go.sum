@@ -15,6 +15,10 @@ github.com/alex60217101990/goebpf v0.0.6 h1:2cn6D0igctZLTWZMkaO3j9Tm2AII1BZ+gNxu
 github.com/alex60217101990/goebpf v0.0.6/go.mod h1:4Gw2OMw1kN0LnB4VISgL5nTyWBWGNclWWSZLpGUeREE=
 github.com/alex60217101990/goebpf v0.0.8 h1:W8U1dUG1ndxsgyvQ4CxsgmSInyX6PeA34bh5CzDztpE=
 github.com/alex60217101990/goebpf v0.0.8/go.mod h1:4Gw2OMw1kN0LnB4VISgL5nTyWBWGNclWWSZLpGUeREE=
+github.com/alex60217101990/goebpf v0.0.9 h1:JQdxYQOCPwLfAa60UL+v7vXReMVfhIt+O8tPM1gFsIY=
+github.com/alex60217101990/goebpf v0.0.9/go.mod h1:4Gw2OMw1kN0LnB4VISgL5nTyWBWGNclWWSZLpGUeREE=
+github.com/alex60217101990/goebpf v0.0.10 h1:QwbTnuXftlX0Df+IRwEi4MGQEwJWhCEpG+6jyfgzoHM=
+github.com/alex60217101990/goebpf v0.0.10/go.mod h1:4Gw2OMw1kN0LnB4VISgL5nTyWBWGNclWWSZLpGUeREE=
 github.com/alex60217101990/types v0.0.6 h1:XKCU6t28meT86CjiB+Vq4nd3GjaDRgf2fPzhxvn9rtY=
 github.com/alex60217101990/types v0.0.6/go.mod h1:oe/ExWAnKUulikcqRw+QbgAQMxpq3gtt7KQuO7JxIfA=
 github.com/alex60217101990/types v0.0.8 h1:8sjVQdwJB1PFVLl3ICWABj2+QAT2f3FJdcwy1BrNqCc=
@@ -73,6 +77,7 @@ github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8/go.mod h1:vgyd7OREkbtVE
 github.com/juju/retry v0.0.0-20160928201858-1998d01ba1c3/go.mod h1:OohPQGsr4pnxwD5YljhQ+TZnuVRYpa5irjugL1Yuif4=
 github.com/juju/testing v0.0.0-20190613124551-e81189438503 h1:ZUgTbk8oHgP0jpMieifGC9Lv47mHn8Pb3mFX3/Ew4iY=
 github.com/juju/testing v0.0.0-20190613124551-e81189438503/go.mod h1:63prj8cnj0tU0S9OHjGJn+b1h0ZghCndfnbQolrYTwA=
+github.com/juju/testing v0.0.0-20200510222523-6c8c298c77a0 h1:+WWUkhnTjV6RNOxkcwk79qrjeyHEHvBzlneueBsatX4=
 github.com/juju/testing v0.0.0-20200510222523-6c8c298c77a0/go.mod h1:hpGvhGHPVbNBraRLZEhoQwFLMrjK8PSlO4D3nDjKYXo=
 github.com/juju/utils v0.0.0-20180808125547-9dfc6dbfb02b/go.mod h1:6/KLg8Wz/y2KVGWEpkK9vMNGkOnu4k/cqs8Z1fKjTOk=
 github.com/juju/version v0.0.0-20161031051906-1f41e27e54f2/go.mod h1:kE8gK5X0CImdr7qpSKl3xB2PmpySSmfj7zVbkZFs81U=

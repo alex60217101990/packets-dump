@@ -3,7 +3,7 @@ module github.com/alex60217101990/packets-dump
 go 1.13
 
 require (
-	github.com/alex60217101990/goebpf v0.0.8
+	github.com/alex60217101990/goebpf v0.0.10
 	github.com/alex60217101990/types v0.0.8
 	github.com/containernetworking/cni v0.7.1
 	github.com/containernetworking/plugins v0.8.5

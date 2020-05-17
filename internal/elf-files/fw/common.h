@@ -63,6 +63,8 @@ enum port_type
     destination_port,
 };
 
+_Static_assert(sizeof(enum port_type) == 4, "wrong size of port_type");
+
 /*
     'port_protocol' here represents the protocol of the port we wish to drop, either a tcp or udp port in this case.
 */
@@ -71,6 +73,8 @@ enum port_protocol
     tcp_port,
     udp_port,
 };
+
+_Static_assert(sizeof(enum port_protocol) == 4, "wrong size of port_protocol");
 
 /*
     'port_key' is the struct we will be using to match on udp or tcp ports in our firewall. Notice that this structure, could be
@@ -87,6 +91,11 @@ struct port_key
     enum port_type type_p;
     enum port_protocol proto;
     __u32 port;
+};
+
+struct port_key_event {
+	__u8 type_p, proto;
+	// __u16 port;
 };
 
 struct counters

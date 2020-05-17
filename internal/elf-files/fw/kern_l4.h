@@ -17,13 +17,21 @@
     Note that the sizing here is of paramount importance, and see the notes listed at the definition of the 'port_key'
     structure.
 */
-struct bpf_map_def SEC("maps") port_blacklist = {
+// struct bpf_map_def SEC("maps") port_blacklist = {
+//     .map_type = BPF_MAP_TYPE_HASH,
+//     .key_size = sizeof(struct port_key),
+//     .value_size = 1,
+//     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
+//     .map_flags = BPF_F_NO_PREALLOC,
+// };
+BPF_MAP_DEF(port_blacklist) = {
     .map_type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(struct port_key),
     .value_size = 1,
     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
     .map_flags = BPF_F_NO_PREALLOC,
 };
+BPF_MAP_ADD(port_blacklist);
 
 /*
     'parse_udp' handles parsing the passed in packets UDP header. It will parse out the source and destination ports of the

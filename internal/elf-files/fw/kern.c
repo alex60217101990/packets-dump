@@ -9,6 +9,22 @@
 #include "kern_l3.h"
 #include "kern_l4.h"
 
+// Define special, perf_events map where key maps to CPU_ID
+BPF_MAP_DEF(perfmap_port) = {
+    .map_type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
+    .max_entries = 128,     // Max supported CPUs
+};
+BPF_MAP_ADD(perfmap_port);
+
+#define SAMPLE_SIZE 1024ul
+#define min(x, y) ((x) < (y) ? (x) : (y))
+
+struct S {
+	__u16 cookie;
+	__u16 pkt_len;
+} __packed;
+_Static_assert(sizeof(struct S) == 4, "wrong size of perf_event_item");
+
 SEC("xdp")
 int xdp_fw(struct xdp_md *xdp_ctx)
 {
@@ -24,6 +40,7 @@ int xdp_fw(struct xdp_md *xdp_ctx)
         throughout this program.
     */
     struct context ctx = to_ctx(xdp_ctx);
+
 
     /*
         Parse our the ethernet header and unwrap any potential vlan headers from this packet. While also making sure
