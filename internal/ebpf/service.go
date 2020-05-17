@@ -99,7 +99,7 @@ func (l *BpfLoader) Init() {
 		log.Println(errors.ErrMapNotFound(consts.PortBlacklist))
 		os.Exit(1)
 	}
-	l.xdpMapsMap.Store(consts.PortBlacklist, ipv6Blacklist)
+	l.xdpMapsMap.Store(consts.PortBlacklist, portBlacklist)
 	// Program name matches function name in C file:
 	fwXdpProg := l.bpf.GetProgramByName(consts.DefaultFwXdpProgName)
 	if fwXdpProg == nil {
