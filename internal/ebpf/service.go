@@ -68,13 +68,6 @@ func (l *BpfLoader) Init() {
 	}
 	// TODO: load other files...
 	l.printBpfInfo()
-	// Find special "PERF_EVENT" eBPF map
-	perfmapPort := l.bpf.GetMapByName(consts.PortPerfMap)
-	if perfmapPort == nil {
-		log.Println(errors.ErrMapNotFound(consts.PortPerfMap))
-		os.Exit(1)
-	}
-	l.xdpMapsMap.Store(consts.PortPerfMap, perfmapPort)
 	// Get eBPF maps:
 	macBlacklist := l.bpf.GetMapByName(consts.MacBlacklist)
 	if macBlacklist == nil {
@@ -94,12 +87,18 @@ func (l *BpfLoader) Init() {
 		os.Exit(1)
 	}
 	l.xdpMapsMap.Store(consts.IPv6Blacklist, ipv6Blacklist)
-	portBlacklist := l.bpf.GetMapByName(consts.PortBlacklist)
-	if portBlacklist == nil {
-		log.Println(errors.ErrMapNotFound(consts.PortBlacklist))
+	portUDPBlacklist := l.bpf.GetMapByName(consts.PortUDPBlacklist)
+	if portUDPBlacklist == nil {
+		log.Println(errors.ErrMapNotFound(consts.PortUDPBlacklist))
 		os.Exit(1)
 	}
-	l.xdpMapsMap.Store(consts.PortBlacklist, ipv6Blacklist)
+	l.xdpMapsMap.Store(consts.PortUDPBlacklist, portUDPBlacklist)
+	portTCPBlacklist := l.bpf.GetMapByName(consts.PortTCPBlacklist)
+	if portTCPBlacklist == nil {
+		log.Println(errors.ErrMapNotFound(consts.PortTCPBlacklist))
+		os.Exit(1)
+	}
+	l.xdpMapsMap.Store(consts.PortTCPBlacklist, portTCPBlacklist)
 	// Program name matches function name in C file:
 	fwXdpProg := l.bpf.GetProgramByName(consts.DefaultFwXdpProgName)
 	if fwXdpProg == nil {
@@ -193,15 +192,14 @@ func (l *BpfLoader) loadIPv6Blacklist() (err error) {
 }
 
 func (l *BpfLoader) loadPortBlacklist() (err error) {
-	for _, portKey := range l.configs.Firewall.PortsBlacklist {
-		if portKey != nil {
-			err = l.Upsert(*portKey)
-		}
-	}
+	// for _, portKey := range l.configs.Firewall.PortsBlacklist {
+	// 	if portKey != nil {
+	// 		err = l.Upsert(*portKey)
+	// 	}
+	// }
 	l.Upsert(cgotypes.PortKeyGo{
-		Type:  0,
-		Proto: 0,
-		Port:  3128,
+		Type: 0,
+		Port: 3128,
 	})
 	return err
 }
@@ -213,9 +211,8 @@ func (l *BpfLoader) Upsert(event interface{}) error {
 			err := m.(goebpf.Map).Upsert(e, 1)
 
 			val1, err := m.(goebpf.Map).LookupInt(cgotypes.PortKeyGo{
-				Type:  0,
-				Proto: 0,
-				Port:  3128,
+				Type: 1,
+				Port: 3128,
 			})
 			log.Println(val1, err)
 
