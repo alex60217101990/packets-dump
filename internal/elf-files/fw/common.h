@@ -86,17 +86,14 @@ _Static_assert(sizeof(enum port_protocol) == 4, "wrong size of port_protocol");
     concept but the simple explanation is that the struct you are using as a key needs to have a byte size divisable by 4 otherwise the
     compiler will add padding bytes to satisfy that requirement and it may (or may not) throw off matching in the map.
 */
-struct port_key
+struct ports_key
 {
-    enum port_type type_p;
-    enum port_protocol proto;
-    __u32 port;
+    __u8 port_type; 
+    __u8 protocol;
+    __u16 port;
 };
 
-struct port_key_event {
-	__u8 type_p, proto;
-	// __u16 port;
-};
+_Static_assert(sizeof(struct ports_key) == 4, "wrong size of ports_key");
 
 struct counters
 {

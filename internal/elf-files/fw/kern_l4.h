@@ -2,12 +2,13 @@
 #define _KERN_L4_H
 
 #include "../bpf_helpers.h"
+#include "./bpf_endian.h"
 #include "common.h"
 #include <linux/tcp.h>
 #include <linux/udp.h>
 
 #ifndef PORT_BLACKLIST_MAX_ENTRIES
-#define PORT_BLACKLIST_MAX_ENTRIES (65535 * 4) /* src + dest * tcp + udp */
+#define PORT_BLACKLIST_MAX_ENTRIES 10000 /* src + dest * tcp + udp */
 #endif
 
 /*
@@ -24,23 +25,38 @@
 //     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
 //     .map_flags = BPF_F_NO_PREALLOC,
 // };
-BPF_MAP_DEF(port_udp_blacklist) = {
-    .map_type = BPF_MAP_TYPE_LPM_TRIE,
+// struct bpf_map_def SEC("maps") ports_udp_h = {
+//     .map_type = BPF_MAP_TYPE_HASH,
+//     .key_size = sizeof(__u32),
+//     .value_size = sizeof(__u8),
+//     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
+//     .map_flags = BPF_F_NO_PREALLOC,
+// };
+BPF_MAP_DEF(ports_udp) = {
+    .map_type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(__u32),
-    .value_size = sizeof(__u8),
+    .value_size = sizeof(__u32),
     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
     .map_flags = BPF_F_NO_PREALLOC,
 };
-BPF_MAP_ADD(port_udp_blacklist);
+BPF_MAP_ADD(ports_udp);
 
-BPF_MAP_DEF(port_tcp_blacklist) = {
-    .map_type = BPF_MAP_TYPE_LPM_TRIE,
+// struct bpf_map_def SEC("maps") ports_tcp_h = {
+//     .map_type = BPF_MAP_TYPE_HASH,
+//     .key_size = sizeof(__u32),
+//     .value_size = sizeof(__u8),
+//     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
+//     .map_flags = BPF_F_NO_PREALLOC,
+// };
+
+BPF_MAP_DEF(ports_tcp) = {
+    .map_type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(__u32),
-    .value_size = sizeof(__u8),
+    .value_size = sizeof(__u32),
     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
     .map_flags = BPF_F_NO_PREALLOC,
 };
-BPF_MAP_ADD(port_tcp_blacklist);
+BPF_MAP_ADD(ports_tcp);
 
 /*
     'parse_udp' handles parsing the passed in packets UDP header. It will parse out the source and destination ports of the
@@ -68,24 +84,23 @@ static __always_inline __u32 parse_udp(struct context *ctx)
         We need to create two 'port_key' values so that we can search for the source and destination ports in our 'port_blacklist'
         map defined above. One for the source port and then another for the destination port.
     */
-    struct {
-        __u16 port_type;
-        __u16 port;
-    } src_key, dst_key;
+    struct ports_key src_key = {
+        .port_type = (__u8)source_port,
+        .protocol = (__u8)udp_port,
+        .port = (__u16)bpf_ntohs(udp->source),
+    };
 
-    /*
-        Set the ports for each key, keeping in mind byte order.
-    */
-    src_key.port = (__u16)bpf_ntohs(udp->source);
-    src_key.port_type = 1;
-    dst_key.port = (__u16)bpf_ntohs(udp->dest);
-    dst_key.port_type = 2;
+    struct ports_key dst_key = {
+        .port_type = (__u8)destination_port,
+        .protocol = (__u8)udp_port,
+        .port = (__u16)bpf_ntohs(udp->dest),
+    };
 
     /*
         Then we search for both individually as the port_key represents only a single port type at a time.
     */
-    if (bpf_map_lookup_elem(&port_udp_blacklist, &src_key) ||
-        bpf_map_lookup_elem(&port_udp_blacklist, &dst_key))
+    if (bpf_map_lookup_elem(&ports_udp, &src_key) ||
+        bpf_map_lookup_elem(&ports_udp, &dst_key))
     {
         return XDP_DROP;
     }
@@ -122,25 +137,24 @@ static __always_inline __u32 parse_tcp(struct context *ctx)
         We need to create two 'port_key' values so that we can search for the source and destination ports in our 'port_blacklist'
         map defined above. One for the source port and then another for the destination port.
     */
-    struct {
-        __u16 port_type;
-        __u16 port;
-    } src_key, dst_key;
+    struct ports_key src_key = {
+        .port_type = (__u8)source_port,
+        .protocol = (__u8)tcp_port,
+        .port = (__u16)bpf_ntohs(tcp->source),
+    };
 
-    /*
-        Set the ports for each key, keeping in mind byte order.
-    */
-    src_key.port = (__u16)bpf_ntohs(tcp->source);
-    src_key.port_type = 1;
-    dst_key.port = (__u16)bpf_ntohs(tcp->dest);
-    dst_key.port_type = 2;
+    struct ports_key dst_key = {
+        .port_type = (__u8)destination_port,
+        .protocol = (__u8)tcp_port,
+        .port = (__u16)bpf_ntohs(tcp->dest),
+    };
 
     /*
         We need to create two 'port_key' values so that we can search for the source and destination ports in our 'port_blacklist'
         map defined above. One for the source port and then another for the destination port.
     */
-    if (bpf_map_lookup_elem(&port_tcp_blacklist, &src_key) ||
-        bpf_map_lookup_elem(&port_tcp_blacklist, &dst_key))
+    if (bpf_map_lookup_elem(&ports_tcp, &src_key) ||
+       bpf_map_lookup_elem(&ports_tcp, &dst_key))
     {
         return XDP_DROP;
     }

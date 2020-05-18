@@ -69,24 +69,24 @@ func (l *BpfLoader) Init() {
 	// TODO: load other files...
 	l.printBpfInfo()
 	// Get eBPF maps:
-	macBlacklist := l.bpf.GetMapByName(consts.MacBlacklist)
-	if macBlacklist == nil {
-		log.Println(errors.ErrMapNotFound(consts.MacBlacklist))
-		os.Exit(1)
-	}
-	l.xdpMapsMap.Store(consts.MacBlacklist, macBlacklist)
-	ipv4Blacklist := l.bpf.GetMapByName(consts.IPv4Blacklist)
-	if ipv4Blacklist == nil {
-		log.Println(errors.ErrMapNotFound(consts.IPv4Blacklist))
-		os.Exit(1)
-	}
-	l.xdpMapsMap.Store(consts.IPv4Blacklist, ipv4Blacklist)
-	ipv6Blacklist := l.bpf.GetMapByName(consts.IPv6Blacklist)
-	if ipv6Blacklist == nil {
-		log.Println(errors.ErrMapNotFound(consts.IPv6Blacklist))
-		os.Exit(1)
-	}
-	l.xdpMapsMap.Store(consts.IPv6Blacklist, ipv6Blacklist)
+	// macBlacklist := l.bpf.GetMapByName(consts.MacBlacklist)
+	// if macBlacklist == nil {
+	// 	log.Println(errors.ErrMapNotFound(consts.MacBlacklist))
+	// 	os.Exit(1)
+	// }
+	// l.xdpMapsMap.Store(consts.MacBlacklist, macBlacklist)
+	// ipv4Blacklist := l.bpf.GetMapByName(consts.IPv4Blacklist)
+	// if ipv4Blacklist == nil {
+	// 	log.Println(errors.ErrMapNotFound(consts.IPv4Blacklist))
+	// 	os.Exit(1)
+	// }
+	// l.xdpMapsMap.Store(consts.IPv4Blacklist, ipv4Blacklist)
+	// ipv6Blacklist := l.bpf.GetMapByName(consts.IPv6Blacklist)
+	// if ipv6Blacklist == nil {
+	// 	log.Println(errors.ErrMapNotFound(consts.IPv6Blacklist))
+	// 	os.Exit(1)
+	// }
+	// l.xdpMapsMap.Store(consts.IPv6Blacklist, ipv6Blacklist)
 	portUDPBlacklist := l.bpf.GetMapByName(consts.PortUDPBlacklist)
 	if portUDPBlacklist == nil {
 		log.Println(errors.ErrMapNotFound(consts.PortUDPBlacklist))
@@ -129,6 +129,7 @@ func (l *BpfLoader) Init() {
 		log.Println(errors.ErrLoadFwBlacklists(err))
 		os.Exit(1)
 	}
+	log.Println("Run success")
 }
 
 func (l *BpfLoader) FwLoadBlacklists() (err error) {
@@ -198,8 +199,20 @@ func (l *BpfLoader) loadPortBlacklist() (err error) {
 	// 	}
 	// }
 	l.Upsert(cgotypes.PortKeyGo{
-		Type: 0,
+		Type: 1,
 		Port: 3128,
+	})
+	l.Upsert(cgotypes.PortKeyGo{
+		Type: 2,
+		Port: 3128,
+	})
+	l.Upsert(cgotypes.PortKeyGo{
+		Type: 1,
+		Port: 5555,
+	})
+	l.Upsert(cgotypes.PortKeyGo{
+		Type: 2,
+		Port: 5555,
 	})
 	return err
 }
@@ -207,7 +220,7 @@ func (l *BpfLoader) loadPortBlacklist() (err error) {
 func (l *BpfLoader) Upsert(event interface{}) error {
 	switch e := event.(type) {
 	case cgotypes.PortKeyGo:
-		if m, ok := l.xdpMapsMap.Load(consts.PortBlacklist); ok {
+		if m, ok := l.xdpMapsMap.Load(consts.PortTCPBlacklist); ok {
 			err := m.(goebpf.Map).Upsert(e, 1)
 
 			val1, err := m.(goebpf.Map).LookupInt(cgotypes.PortKeyGo{
@@ -220,7 +233,7 @@ func (l *BpfLoader) Upsert(event interface{}) error {
 		}
 	case cgotypes.PortKey:
 		fmt.Println(111)
-		if m, ok := l.xdpMapsMap.Load(consts.PortBlacklist); ok {
+		if m, ok := l.xdpMapsMap.Load(consts.PortTCPBlacklist); ok {
 			err := m.(goebpf.Map).Upsert(e, 1)
 			fmt.Println(222, err)
 
@@ -250,7 +263,7 @@ func (l *BpfLoader) Upsert(event interface{}) error {
 func (l *BpfLoader) Delete(event interface{}) error {
 	switch e := event.(type) {
 	case cgotypes.PortKey:
-		if m, ok := l.xdpMapsMap.Load(consts.PortBlacklist); ok {
+		if m, ok := l.xdpMapsMap.Load(consts.PortTCPBlacklist); ok {
 			return m.(goebpf.Map).Delete(e)
 		}
 	case cgotypes.LpmV4Key:

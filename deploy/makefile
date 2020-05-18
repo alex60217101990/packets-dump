@@ -14,8 +14,10 @@ GO_BINARY := dump
 
 EBPF_SOURCE := $(shell find .. -name \dump.c -type f)
 EBPF_SOURCE_FW := $(shell find .. -name \kern.c -type f)
+EBPF_SOURCE_DROP := $(shell find .. -name \fw_1.c -type f)
 EBPF_BINARY := ../tmp/dump.elf
 EBPF_BINARY_FW := ../tmp/fw.elf
+EBPF_BINARY_DROP := ../tmp/fw_1.elf
 
 # all: build_bpf build_go
 
@@ -48,6 +50,7 @@ ebpf-elf-build: $(EBPF_SOURCE)
 	@printf "${COLOR_LIGHT_PURPLE}Building .elf binary...${COLOR_NC}\n"
 	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $^  -o $(EBPF_BINARY)
 	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $(EBPF_SOURCE_FW)  -o $(EBPF_BINARY_FW)
+	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $(EBPF_SOURCE_DROP)  -o $(EBPF_BINARY_DROP)
 
 go-build:
 	$(GOCMD) clean -modcache

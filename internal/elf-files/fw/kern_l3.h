@@ -12,7 +12,7 @@
     to this blacklist.
 */
 #ifndef V4_BLACKLIST_MAX_ENTRIES
-#define V4_BLACKLIST_MAX_ENTRIES 10000
+#define V4_BLACKLIST_MAX_ENTRIES 16
 #endif
 
 /*
@@ -21,7 +21,7 @@
     to this blacklist.
 */
 #ifndef V6_BLACKLIST_MAX_ENTRIES
-#define V6_BLACKLIST_MAX_ENTRIES 10000
+#define V6_BLACKLIST_MAX_ENTRIES 16
 #endif
 
 /*
