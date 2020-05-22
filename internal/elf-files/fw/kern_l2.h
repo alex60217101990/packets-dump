@@ -1,7 +1,7 @@
 #ifndef _KERN_L2_H
 #define _KERN_L2_H
 
-#include "../bpf_helpers.h"
+#include "../main/bpf_helpers.h"
 #include <linux/if_ether.h>
 
 /*
@@ -43,7 +43,7 @@ struct vlan_hdr
 struct bpf_map_def SEC("maps") mac_blacklist = {
     .map_type = BPF_MAP_TYPE_HASH,
     .key_size = ETH_ALEN,
-    .value_size = 1,
+    .value_size = sizeof(__u8),
     .max_entries = MAC_BLACKLIST_MAX_ENTRIES,
     .map_flags = BPF_F_NO_PREALLOC,
 };

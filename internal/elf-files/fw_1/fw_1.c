@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/if_ether.h>
 #include <linux/in.h>
-#include "../bpf_helpers.h"
+#include "../main/bpf_helpers.h"
 
 #include "../fw/utils.h"
 #include "../fw/kern_l2.h"

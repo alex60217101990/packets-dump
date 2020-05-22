@@ -4,8 +4,8 @@
 #define _UTILS_H
 
 #include <linux/bpf.h>
-#include "bpf_endian.h"
-#include "../bpf_helpers.h"
+#include "../main/bpf_endian.h"
+#include "../main/bpf_helpers.h"
 
 #include "common.h"
 

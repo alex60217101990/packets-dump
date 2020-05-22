@@ -1,11 +1,12 @@
 #ifndef _KERN_L4_H
 #define _KERN_L4_H
 
-#include "../bpf_helpers.h"
-#include "./bpf_endian.h"
+#include "../main/bpf_helpers.h"
+#include "../main/bpf_endian.h"
 #include "common.h"
 #include <linux/tcp.h>
 #include <linux/udp.h>
+#include "../main/utils_helpers.h"
 
 #ifndef PORT_BLACKLIST_MAX_ENTRIES
 #define PORT_BLACKLIST_MAX_ENTRIES 10000 /* src + dest * tcp + udp */
@@ -18,20 +19,6 @@
     Note that the sizing here is of paramount importance, and see the notes listed at the definition of the 'port_key'
     structure.
 */
-// struct bpf_map_def SEC("maps") port_blacklist = {
-//     .map_type = BPF_MAP_TYPE_HASH,
-//     .key_size = sizeof(struct port_key),
-//     .value_size = 1,
-//     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
-//     .map_flags = BPF_F_NO_PREALLOC,
-// };
-// struct bpf_map_def SEC("maps") ports_udp_h = {
-//     .map_type = BPF_MAP_TYPE_HASH,
-//     .key_size = sizeof(__u32),
-//     .value_size = sizeof(__u8),
-//     .max_entries = PORT_BLACKLIST_MAX_ENTRIES,
-//     .map_flags = BPF_F_NO_PREALLOC,
-// };
 BPF_MAP_DEF(ports_udp) = {
     .map_type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(__u32),
@@ -62,7 +49,7 @@ BPF_MAP_ADD(ports_tcp);
     'parse_udp' handles parsing the passed in packets UDP header. It will parse out the source and destination ports of the
     packet and check to see if either exists in the 'port_blacklist' BPF map defined above.
 */
-static __always_inline __u32 parse_udp(struct context *ctx)
+INTERNAL __u32 parse_udp(struct context *ctx)
 {
     /*
         We need to access the UDP header data so we can find out whether or not this packets source or destionation ports are
@@ -115,7 +102,7 @@ static __always_inline __u32 parse_udp(struct context *ctx)
     'parse_tcp' handles parsing the passed in packets TCP header. It will parse out the source and destination ports of the
     packet and check to see if either exists in the 'port_blacklist' BPF map defined above.
 */
-static __always_inline __u32 parse_tcp(struct context *ctx)
+INTERNAL __u32 parse_tcp(struct context *ctx)
 {
     /*
         We need to access the TCP header data so we can find out whether or not this packets source or destionation ports are

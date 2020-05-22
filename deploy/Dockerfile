@@ -61,8 +61,6 @@
 
 
 
-
-
 FROM ubuntu:18.04 
 
 LABEL maintainer="alex6021710@gmail.com"

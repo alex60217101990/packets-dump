@@ -1,10 +1,12 @@
 #ifndef _KERN_L3_H
 #define _KERN_L3_H
 
-#include "../bpf_helpers.h"
+#include "../main/bpf_helpers.h"
 #include "common.h"
 #include <linux/ip.h>
 #include <linux/ipv6.h>
+#include "./common.h"
+#include "../main/utils_helpers.h"
 
 /*
     This define represents the total number of IPv4 address ranges we are allowing to be blacklisted at any one time.
@@ -12,7 +14,7 @@
     to this blacklist.
 */
 #ifndef V4_BLACKLIST_MAX_ENTRIES
-#define V4_BLACKLIST_MAX_ENTRIES 16
+#define V4_BLACKLIST_MAX_ENTRIES 10000
 #endif
 
 /*
@@ -21,7 +23,7 @@
     to this blacklist.
 */
 #ifndef V6_BLACKLIST_MAX_ENTRIES
-#define V6_BLACKLIST_MAX_ENTRIES 16
+#define V6_BLACKLIST_MAX_ENTRIES 10000
 #endif
 
 /*
@@ -44,7 +46,7 @@
 struct bpf_map_def SEC("maps") v4_blacklist = {
     .map_type = BPF_MAP_TYPE_LPM_TRIE,
     .key_size = sizeof(struct lpm_v4_key),
-    .value_size = 1,
+    .value_size = sizeof(__u8),
     .max_entries = V4_BLACKLIST_MAX_ENTRIES,
     .map_flags = BPF_F_NO_PREALLOC,
 };
@@ -58,7 +60,7 @@ struct bpf_map_def SEC("maps") v4_blacklist = {
 struct bpf_map_def SEC("maps") v6_blacklist = {
     .map_type = BPF_MAP_TYPE_LPM_TRIE,
     .key_size = sizeof(struct lpm_v6_key),
-    .value_size = 1,
+    .value_size = sizeof(__u8),
     .max_entries = V6_BLACKLIST_MAX_ENTRIES,
     .map_flags = BPF_F_NO_PREALLOC,
 };
@@ -67,7 +69,7 @@ struct bpf_map_def SEC("maps") v6_blacklist = {
     'parse_ipv4' handles parsing the passed in packets IPv4 header. It will parse out the source address of the
     packets and check to see if it exists in the 'v4_blacklist' BPF map defined above.
 */
-static __always_inline __u32 parse_ipv4(struct context *ctx)
+INTERNAL __u32 parse_ipv4(struct context *ctx)
 {
     /*
         We need to access the IPv4 header data so we can find out whether or not this packets source IP address is blacklisted,
@@ -97,7 +99,7 @@ static __always_inline __u32 parse_ipv4(struct context *ctx)
         source address in the packet to our key's 'address' field. Also because we are taking a full IPv4 address here to use as
         the key we need to set the 'prefixlen' to 32, which is the maximum size of an IPv4 address.
     */
-    __builtin_memcpy(key.address, &ip->saddr, sizeof(key.address));
+    memcpy(key.address, &ip->saddr, sizeof(key.address));
     key.prefixlen = 32;
 
     /*
@@ -127,7 +129,7 @@ static __always_inline __u32 parse_ipv4(struct context *ctx)
     'parse_ipv6' handles parsing the passed in packets IPv8 header. It will parse out the source address of the
     packets and check to see if it exists in the 'v6_blacklist' BPF map defined above.
 */
-static __always_inline __u32 parse_ipv6(struct context *ctx)
+INTERNAL __u32 parse_ipv6(struct context *ctx)
 {
     /*
         We need to access the IPv6 header data so we can find out whether or not this packets source IP address is blacklisted,
@@ -141,7 +143,7 @@ static __always_inline __u32 parse_ipv6(struct context *ctx)
         As always since we are accessing data within the packet we need to ensure that we aren't going out of bounds.
     */
     if (ip + 1 > ctx->data_end)
-    {
+    {   
         return XDP_DROP;
     }
 
@@ -157,7 +159,7 @@ static __always_inline __u32 parse_ipv6(struct context *ctx)
         source address in the packet to our key's 'address' field. Also because we are taking a full IPv6 address here to use as
         the key we need to set the 'prefixlen' to 128, which is the maximum size of an IPv6 address.
     */
-    __builtin_memcpy(key.address, &ip->saddr, sizeof(key.address));
+    memcpy(key.address, &ip->saddr, sizeof(key.address));
     key.prefixlen = 128;
 
     /*

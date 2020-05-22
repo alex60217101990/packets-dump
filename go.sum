@@ -47,6 +47,10 @@ github.com/alex60217101990/goebpf v0.1.5 h1:gxqEfr1iL6wDZiVuC0rHYgmEVYhf+bdlVs5H
 github.com/alex60217101990/goebpf v0.1.5/go.mod h1:SOaYF/nSEgrUW+mrF7T71jOSqLI0mrzoBmdJhDxABcY=
 github.com/alex60217101990/goebpf v0.1.6 h1:3iwXpFzAMUvLFAtbjEPLCilWmlY9H8KtHJrLe82lkL0=
 github.com/alex60217101990/goebpf v0.1.6/go.mod h1:SOaYF/nSEgrUW+mrF7T71jOSqLI0mrzoBmdJhDxABcY=
+github.com/alex60217101990/goebpf v0.1.7 h1:QftQVurGisYLEKuL5ef4O8bvOUX/kya46HTOzIMRj1g=
+github.com/alex60217101990/goebpf v0.1.7/go.mod h1:SOaYF/nSEgrUW+mrF7T71jOSqLI0mrzoBmdJhDxABcY=
+github.com/alex60217101990/goebpf v0.1.8 h1:33OpjE3IW52EllM8Nii9Wud6joEpwV4L7SZt6hqMQT4=
+github.com/alex60217101990/goebpf v0.1.8/go.mod h1:pRu7yEiua51aCtXIJG2kF0PoGcGmCg1ktwu4ZGY9b14=
 github.com/alex60217101990/types v0.0.6 h1:XKCU6t28meT86CjiB+Vq4nd3GjaDRgf2fPzhxvn9rtY=
 github.com/alex60217101990/types v0.0.6/go.mod h1:oe/ExWAnKUulikcqRw+QbgAQMxpq3gtt7KQuO7JxIfA=
 github.com/alex60217101990/types v0.0.8 h1:8sjVQdwJB1PFVLl3ICWABj2+QAT2f3FJdcwy1BrNqCc=
@@ -57,6 +61,8 @@ github.com/alex60217101990/types v0.0.10 h1:JgMxqmkJJderOKeoPvDD6MpRaQJ/QssRNWfy
 github.com/alex60217101990/types v0.0.10/go.mod h1:ZzemU/8qiHFz1CiNxQ6NCQRRDv32aPvbFLU9OyAigfs=
 github.com/alex60217101990/types v0.1.0 h1:bKBq9Z4EWUnByQg3THuFYfKzuof0XJjNXYaWau8vShc=
 github.com/alex60217101990/types v0.1.0/go.mod h1:ZzemU/8qiHFz1CiNxQ6NCQRRDv32aPvbFLU9OyAigfs=
+github.com/alex60217101990/types v0.1.1 h1:4xxnoNRSoZKBacgh56SS7BNjxEBLnIvQUDTUe5uu28w=
+github.com/alex60217101990/types v0.1.1/go.mod h1:ZzemU/8qiHFz1CiNxQ6NCQRRDv32aPvbFLU9OyAigfs=
 github.com/alexflint/go-filemutex v0.0.0-20171022225611-72bdc8eae2ae/go.mod h1:CgnQgUtFrFz9mxFNtED3jI5tLDjKlOM+oUF/sTk6ps0=
 github.com/buger/jsonparser v0.0.0-20180808090653-f4dd9f5a6b44/go.mod h1:bbYlZJ7hK1yFx9hf58LP0zeX7UjIGs20ufpu3evjr+s=
 github.com/chai2010/cgo v0.0.0-20200331151253-339eea8df62d h1:Ntwfe/tOPIS9nLN7tFQqHhcy5QwPlm1EmK8imdvNZAA=

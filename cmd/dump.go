@@ -7,10 +7,10 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/dropbox/goebpf"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/vishvananda/netlink"
-	"github.com/dropbox/goebpf"
 )
 
 var iface = flag.String("iface", "", "Interface to bind XDP program to")
@@ -92,14 +92,40 @@ func main() {
 	log.Println("All new TCP connection requests (SYN) coming to this host will be dumped here.")
 	log.Println()
 
+	var eth layers.Ethernet
+	var ip4 layers.IPv4
+	var ip6 layers.IPv6
+	var tcp layers.TCP
+	var udp layers.UDP
+	var payload gopacket.Payload
+	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &eth, &ip4, &ip6, &tcp, &udp, &payload)
+	decodedLayers := make([]gopacket.LayerType, 0, 10)
+
 	go func() {
 		for {
 			if data, ok := <-perfEvents; ok {
 				//packet := gopacket.NewPacket()
 				if len(data)-metadataSize > 0 {
 					// event contains packet sample as well
-					packet := gopacket.NewPacket(data[metadataSize:], layers.LayerTypeEthernet, gopacket.Default)
-					fmt.Println(packet.String())
+					// packet := gopacket.NewPacket(data[metadataSize:], layers.LayerTypeEthernet, gopacket.Default)
+					// fmt.Println(packet.String())
+					fmt.Println("Decoding packet")
+					err = parser.DecodeLayers(data[metadataSize:], &decodedLayers)
+					for _, typ := range decodedLayers {
+						fmt.Println("  Successfully decoded layer type", typ)
+						switch typ {
+						case layers.LayerTypeEthernet:
+							fmt.Println("    Eth ", eth.SrcMAC, eth.DstMAC)
+						case layers.LayerTypeIPv4:
+							fmt.Println("    IP4 ", ip4.SrcIP, ip4.DstIP)
+						case layers.LayerTypeIPv6:
+							fmt.Println("    IP6 ", ip6.SrcIP, ip6.DstIP)
+						case layers.LayerTypeTCP:
+							fmt.Println("    TCP ", tcp.SrcPort, tcp.DstPort)
+						case layers.LayerTypeUDP:
+							fmt.Println("    UDP ", udp.SrcPort, udp.DstPort)
+						}
+					}
 				}
 				// fmt.Println(data)
 			} else {
