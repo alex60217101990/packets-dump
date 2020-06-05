@@ -78,6 +78,7 @@ INTERNAL __u32 parse_ipv4(struct context *ctx)
         called parse_eth function call.
     */
     struct iphdr *ip = ctx->data_start + ctx->nh_offset;
+    ctx->v4 = ip;
 
     /*
         As always since we are accessing data within the packet we need to ensure that we aren't going out of bounds.
@@ -138,6 +139,7 @@ INTERNAL __u32 parse_ipv6(struct context *ctx)
         called parse_eth function call.
     */
     struct ipv6hdr *ip = ctx->data_start + ctx->nh_offset;
+    ctx->v6 = ip;
 
     /*
         As always since we are accessing data within the packet we need to ensure that we aren't going out of bounds.

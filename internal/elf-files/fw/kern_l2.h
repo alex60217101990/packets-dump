@@ -2,6 +2,7 @@
 #define _KERN_L2_H
 
 #include "../main/bpf_helpers.h"
+#include "../main/utils_helpers.h"
 #include <linux/if_ether.h>
 
 /*
@@ -52,7 +53,7 @@ struct bpf_map_def SEC("maps") mac_blacklist = {
     'parse_eth' handles parsing the passed in packets ethernet and vlan headers if any exist. It will parse out the source MAC address
     of this packet and check to see if it exists in the 'mac_blacklist' BPF map defined above, and also unwrap up to two vlan headers.
 */
-static __always_inline __u32 parse_eth(struct context *ctx)
+INTERNAL __u32 parse_eth(struct context *ctx)
 {
     /*
         We need to access the ethernet header data so we can find out whether or not this packets source MAC address is blacklisted,
@@ -60,6 +61,7 @@ static __always_inline __u32 parse_eth(struct context *ctx)
         So we take the pre-casted data start location pointer and adds the next header offset, which in this case is always 0.
     */
     struct ethhdr *eth = ctx->data_start + ctx->nh_offset;
+    ctx->eth = eth;
 
     /*
         As always since we are accessing data within the packet we need to ensure that at the very least we have one entire ethernet

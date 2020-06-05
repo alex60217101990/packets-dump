@@ -15,10 +15,11 @@ GO_BINARY := dump
 EBPF_SOURCE := $(shell find .. -name \dump.c -type f)
 # EBPF_SOURCE_FW := $(shell find .. -name \kern.c -type f)
 EBPF_SOURCE_FW := $(shell find .. -name \fw.c -type f)
-EBPF_SOURCE_DDOS := $(shell find .. -name \ddos_syn.c -type f)
+EBPF_SOURCE_RD := $(shell find .. -name \redirect.c -type f)
 EBPF_BINARY := ../tmp/dump.elf
 EBPF_BINARY_FW := ../tmp/fw.elf
-EBPF_BINARY_DDOS := ../tmp/ddos_syn.elf
+EBPF_BINARY_RD := ../tmp/redirect.o
+EBPF_BINARY_PX := ../tmp/proxy.elf
 
 # all: build_bpf build_go
 
@@ -51,7 +52,12 @@ ebpf-elf-build: $(EBPF_SOURCE)
 	@printf "${COLOR_LIGHT_PURPLE}Building .elf binary...${COLOR_NC}\n"
 	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $^  -o $(EBPF_BINARY)
 	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $(EBPF_SOURCE_FW)  -o $(EBPF_BINARY_FW)
-	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $(EBPF_SOURCE_DDOS)  -o $(EBPF_BINARY_DDOS)
+	$(CLANG) $(CLANG_INCLUDE) -O2 -target bpf -c $(EBPF_SOURCE_RD) -o $(EBPF_BINARY_PX)
+
+tc-build:
+	@printf "${COLOR_LIGHT_PURPLE}Building TC .o binary...${COLOR_NC}\n"
+	# compile c code into bpf code
+	$(CLANG) $(CLANG_INCLUDE) -O2 -Wall -target bpf -c $(EBPF_SOURCE_RD) -o $(EBPF_BINARY_RD)
 
 go-build:
 	$(GOCMD) clean -modcache
@@ -99,3 +105,5 @@ help: Makefile
 # curl -s localhost:80 >/dev/null && echo Success. || echo Fail.
 
 # docker inspect 115c71d8e865 --format='{{.Id}}'
+
+# docker run --security-opt no-new-privileges --cap-add=SYS_ADMIN --cap-add=NET_ADMIN -it --rm test1 /bin/bash

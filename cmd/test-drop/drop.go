@@ -8,7 +8,6 @@ import (
 
 	//"github.com/dropbox/goebpf"
 	"github.com/alex60217101990/goebpf"
-	"github.com/alex60217101990/types/models"
 )
 
 var iface = flag.String("iface", "", "Interface to bind XDP program to")
@@ -113,38 +112,38 @@ func main() {
 	// 	os.Exit(1)
 	// }
 
-	ipv4Blacklist := bpf.GetMapByName("v4_blacklist")
-	if ipv4Blacklist == nil {
-		log.Println("eBPF map 'v4_blacklist' not found")
-		os.Exit(1)
-	}
-	var ipv4 models.IPv4Key
-	err = ipv4.ParseFromStr("127.0.0.1")
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-	err = ipv4Blacklist.Upsert(&ipv4, 1)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-	ipv6Blacklist := bpf.GetMapByName("v6_blacklist")
-	if ipv6Blacklist == nil {
-		log.Println("eBPF map 'v6_blacklist' not found")
-		os.Exit(1)
-	}
-	var ipv6 models.IPv6Key
-	err = ipv6.ParseFromStr("::1")
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-	err = ipv6Blacklist.Upsert(&ipv6, 1)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
+	// ipv4Blacklist := bpf.GetMapByName("v4_blacklist")
+	// if ipv4Blacklist == nil {
+	// 	log.Println("eBPF map 'v4_blacklist' not found")
+	// 	os.Exit(1)
+	// }
+	// var ipv4 models.IPv4Key
+	// err = ipv4.ParseFromStr("127.0.0.1")
+	// if err != nil {
+	// 	log.Println(err)
+	// 	os.Exit(1)
+	// }
+	// err = ipv4Blacklist.Upsert(&ipv4, 1)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	os.Exit(1)
+	// }
+	// ipv6Blacklist := bpf.GetMapByName("v6_blacklist")
+	// if ipv6Blacklist == nil {
+	// 	log.Println("eBPF map 'v6_blacklist' not found")
+	// 	os.Exit(1)
+	// }
+	// var ipv6 models.IPv6Key
+	// err = ipv6.ParseFromStr("::1")
+	// if err != nil {
+	// 	log.Println(err)
+	// 	os.Exit(1)
+	// }
+	// err = ipv6Blacklist.Upsert(&ipv6, 1)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	os.Exit(1)
+	// }
 
 	defer func() {
 		if r := recover(); r != nil {

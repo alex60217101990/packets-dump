@@ -169,25 +169,15 @@ func (l *BpfLoader) loadMacBlacklist() error {
 }
 
 func (l *BpfLoader) loadIPv4Blacklist() (err error) {
-	var ipKey cgotypes.LpmV4Key
-	for _, ipStr := range l.configs.Firewall.IPv4BlackList {
-		fmt.Println(ipStr)
-		ipKey, err = cgotypes.ParseFromSrtV4(ipStr)
-		fmt.Println(ipStr, ipKey, err)
-		if err == nil {
-			err = l.Upsert(ipKey)
-		}
+	for _, ipKey := range l.configs.Firewall.IPv4BlackList {
+		err = l.Upsert(ipKey)
 	}
 	return err
 }
 
 func (l *BpfLoader) loadIPv6Blacklist() (err error) {
-	var ipKey cgotypes.LpmV6Key
-	for _, ipStr := range l.configs.Firewall.IPv6BlackList {
-		ipKey, err = cgotypes.ParseFromSrtV6(ipStr)
-		if err == nil {
-			err = l.Upsert(ipKey)
-		}
+	for _, ipKey := range l.configs.Firewall.IPv6BlackList {
+		err = l.Upsert(ipKey)
 	}
 	return err
 }

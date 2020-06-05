@@ -30,7 +30,14 @@ func main() {
 		mux.Handle("/", th)
 		ListenAndServe(fmt.Sprintf(":%d", *port), mux)
 	} else {
-		http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
+		// http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
+		listener, err := net.Listen("tcp4", fmt.Sprintf(":%d", *port))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Using port:", listener.Addr().(*net.TCPAddr).Port)
+		fmt.Println("Using port:", listener.Addr().String())
+		panic(http.Serve(listener, nil))
 	}
 }
 
@@ -44,5 +51,6 @@ func ListenAndServe(addr string, handler http.Handler) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Using port:", ln.Addr().(*net.TCPAddr).Port)
 	return srv.Serve(ln.(*net.TCPListener))
 }

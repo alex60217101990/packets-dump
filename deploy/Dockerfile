@@ -65,15 +65,52 @@ FROM ubuntu:18.04
 
 LABEL maintainer="alex6021710@gmail.com"
 
-RUN apt-get update && apt-get install -y locales sudo && rm -rf /var/lib/apt/lists/* \
-    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.utf8
+# RUN apt-get update && apt-get install -y locales sudo && rm -rf /var/lib/apt/lists/* \
+#     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+# ENV LANG en_US.utf8
 
+RUN apt-get update && apt-get install -y \
+    # systemd \
+    # nftables \
+    iproute2 \
+    sudo \
+    clang \
+    llvm \
+    libelf-dev \
+    libpcap-dev \
+    gcc-multilib \
+    build-essential \
+    linux-tools-common \
+    linux-tools-generic
+
+ # && rm -rf /var/lib/apt/lists/* && \
+    # echo "net.ipv6.conf.eth0.accept_ra = 2" >> /etc/sysctl.conf && \
+    # echo "net.ipv6.conf.all.forwarding = 1" >> /etc/sysctl.conf && \
+    # echo "net.ipv6.conf.default.forwarding = 1" >> /etc/sysctl.conf && \
+    # echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+
+# RUN systemctl daemon-reload && \
+#     systemctl enable nftables.service && \
+#     systemctl start nftables.service && \
+#     systemctl status nftables.service # && \
+    # sysctl -w net.ipv6.conf.eth0.accept_ra=2 && \
+    # sysctl -w net.ipv6.conf.all.forwarding=1 && \
+    # sysctl -w net.ipv6.conf.default.forwarding=1 && \
+    # sysctl -w net.ipv4.ip_forward=1
+    
+# RUN service nftables start && \
+#     service nftables status
+
+USER root
 WORKDIR /root/
 
-COPY ./dump .
-COPY ./dump.elf .
+COPY ./nftables.rules /etc/nftables/nftables.rules
 
-RUN chmod +x ./dump
+# COPY ./dump .
+# COPY ./dump.elf .
 
-CMD ["sudo", "./dump", "-iface", "eth0"]
+# RUN chmod +x ./dump
+
+# CMD ["sudo", "./dump", "-iface", "eth0"]
+# CMD ["/bin/sh"]
+CMD ["/bin/bash"]

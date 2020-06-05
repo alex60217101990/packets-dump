@@ -51,6 +51,7 @@ static __always_inline struct context to_ctx(struct xdp_md *xdp_ctx)
     struct context ctx = {
         .data_start = (void *)(long)xdp_ctx->data,
         .data_end = (void *)(long)xdp_ctx->data_end,
+        .base_ctx = xdp_ctx,
         .nh_proto = 0,
         .nh_offset = 0,
     };

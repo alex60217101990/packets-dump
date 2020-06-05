@@ -22,6 +22,8 @@ typedef unsigned long size_t;
 typedef __u32 __be32;
 typedef __u16 __be16;
 
+#define BPF_F_PSEUDO_HDR		(1ULL << 4)
+
 // BPF map types
 
 /* flags for BPF_MAP_UPDATE_ELEM command */
@@ -126,13 +128,27 @@ static __u64 (*bpf_ktime_get_ns)(void) = (void *) // NOLINT
 static __u32 (*bpf_get_prandom_u32)(void) = (void *) // NOLINT
     BPF_FUNC_get_prandom_u32;
 
+static int (*bpf_l3_csum_replace)(void *ctx, int off, int from, int to, int flags) =
+	(void *) BPF_FUNC_l3_csum_replace;
+
+static int (*bpf_l4_csum_replace)(void *ctx, int off, int from, int to, int flags) =
+	(void *) BPF_FUNC_l4_csum_replace;
+
+static int (*bpf_skb_store_bytes)(void *ctx, int off, void *from, int len, int flags) =
+	(void *) BPF_FUNC_skb_store_bytes;
+
 // Like printf() for BPF
 // Return: length of buffer written or negative error
-static int (*bpf_trace_printk)(const char *fmt, int fmt_size, ...) = (void *)  // NOLINT
-    BPF_FUNC_trace_printk;
+// static int (*bpf_trace_printk)(const char *fmt, int fmt_size, ...) = (void *)  // NOLINT
+//     BPF_FUNC_trace_printk;
+static int (*bpf_trace_printk)(const char *fmt, int fmt_size, ...) =
+        (void *) BPF_FUNC_trace_printk;
 
-static int (*bpf_probe_read_str)(void *dst, __u64 size, const void *unsafe_ptr) = (void *) // NOLINT
-    BPF_FUNC_probe_read_str;
+#define printt(fmt, ...)                                                   \
+        ({                                                                 \
+                char ____fmt[] = fmt;                                      \
+                bpf_trace_printk(____fmt, sizeof(____fmt), ##__VA_ARGS__); \
+        })
 
 // Jump into another BPF program
 //     prog_array_map: pointer to map which type is BPF_MAP_TYPE_PROG_ARRAY

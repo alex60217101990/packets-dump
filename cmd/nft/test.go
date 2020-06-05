@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"runtime"
 
 	"github.com/alex60217101990/packets-dump/internal/nftables"
 	"github.com/alex60217101990/types/enums"
@@ -33,7 +32,6 @@ func main() {
 	if *toPort == 0 || *fromPort == 0 {
 		log.Fatal("invalid one of ports parameter")
 	}
-	runtime.LockOSThread()
 	// nftables.NewNftService()
 	nft = nftables.NewNftService()
 	log.Println(nft.ChangeLocalProxyRule(arg, "proxyIPv4", uint16(*fromPort), uint16(*toPort), unix.IPPROTO_TCP))

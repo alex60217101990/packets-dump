@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/if_ether.h>
 #include <linux/in.h>
-#include "../bpf_helpers.h"
+#include "../main/bpf_helpers.h"
 
 /* eBPF requires all functions to be inlined */
 #define INTERNAL static __attribute__((always_inline))
@@ -26,7 +26,7 @@ int xdp_fw_l(struct xdp_md *ctx) {
     __u32 action = XDP_PASS;
     bpf_printk("got packet: %p\n", ctx);
 
-     /*
+    /*
         Convert the supplied 'xdp_md' structure to one of our custom 'context' structures for easy handling
         throughout this program.
     */

@@ -2,6 +2,7 @@
 #include <linux/if_ether.h>
 #include <linux/in.h>
 #include "../main/bpf_helpers.h"
+#include "../fw/redirect.h"
 
 #include "../fw/utils.h"
 #include "../fw/kern_l2.h"
@@ -32,9 +33,6 @@ int xdp_fw(struct xdp_md *ctx) {
     {
         goto ret;
     }
-
-    //...
-
 
     /*
         Check the layer 3 protocol contained in this packet, we only care about IPv4 and IPv6 in this case so if its not one
@@ -93,6 +91,9 @@ int xdp_fw(struct xdp_md *ctx) {
         break; 
     }
 ret:
+    // if (action == XDP_PASS) {
+    //     action = redirect(&custom_ctx);
+    // }
     return update_action_stats(&custom_ctx, action);
 }
 

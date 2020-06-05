@@ -8,6 +8,8 @@
 #include <linux/udp.h>
 #include "../main/utils_helpers.h"
 
+// #include <arpa/inet.h>
+
 #ifndef PORT_BLACKLIST_MAX_ENTRIES
 #define PORT_BLACKLIST_MAX_ENTRIES 10000 /* src + dest * tcp + udp */
 #endif
@@ -58,6 +60,7 @@ INTERNAL __u32 parse_udp(struct context *ctx)
         called parse_eth function call.
     */
     struct udphdr *udp = ctx->data_start + ctx->nh_offset;
+    ctx->udp = udp;
 
     /*
         As always since we are accessing data within the packet we need to ensure that we aren't going out of bounds.
@@ -111,6 +114,7 @@ INTERNAL __u32 parse_tcp(struct context *ctx)
         called parse_eth function call.
     */
     struct tcphdr *tcp = ctx->data_start + ctx->nh_offset;
+    ctx->tcp = tcp;
 
     /*
         As always since we are accessing data within the packet we need to ensure that we aren't going out of bounds.
@@ -145,6 +149,24 @@ INTERNAL __u32 parse_tcp(struct context *ctx)
     {
         return XDP_DROP;
     }
+
+    // unsigned short old_daddr;
+    // unsigned long sum;
+    // uint32_t index;
+    // long *value;
+    // long zero = 0;
+    // // Backup old dest address
+    // old_daddr = ntohs(*(unsigned short *)&ctx->v4->daddr);
+    // // Override ip header
+    // ctx->v4->tos = 7 << 2;      // DSCP: 7
+    // ctx->v4->daddr = htonl(3232248325);  // Dest: 192.168.50.5
+    // ctx->v4->check = 0;
+    // ctx->v4->check = checksum((unsigned short *)ctx->v4, sizeof(struct iphdr));
+    // // Update tcp checksum
+    // sum = old_daddr + (~ntohs(*(unsigned short *)&ctx->v4->daddr) & 0xffff);
+    // sum += ntohs(tcp->check);
+    // sum = (sum & 0xffff) + (sum>>16);
+    // tcp->check = htons(sum + (sum>>16) - 1);
 
     /*
         If we got here we are continuing on to the next parser so return XDP_PASS.

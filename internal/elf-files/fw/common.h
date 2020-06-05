@@ -18,10 +18,17 @@ struct context
 {
     void *data_start;
     void *data_end;
+    struct xdp_md *base_ctx;
     __u32 length;
 
     __u32 nh_proto;
     __u32 nh_offset;
+
+    struct ethhdr *eth;
+    struct iphdr *v4;
+    struct ipv6hdr *v6;
+    struct udphdr *udp;
+    struct tcphdr *tcp;
 };
 
 /*
@@ -100,6 +107,22 @@ struct counters
     __u64 packets;
     __u64 bytes;
 };
+
+struct v4_proxy_key
+{
+    __u8 v4_address[4];
+    __u16 port;
+};
+
+_Static_assert(sizeof(struct v4_proxy_key) == 6, "wrong size of v4_proxy_key");
+
+struct v6_proxy_key
+{
+    __u8 v6_address[16];
+    __u16 port;
+};
+
+_Static_assert(sizeof(struct v6_proxy_key) == 18, "wrong size of v6_proxy_key");
 
 //struct bpf_lpm_trie_key *key = alloca(v4 ? sizeof(struct lpm_v4_key) : sizeof(struct lpm_v6_key));
 

@@ -7,3 +7,5 @@ tmp
 *.json
 *.yaml
 *.idea
+*.test
+*.tmp
