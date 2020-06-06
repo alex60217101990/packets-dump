@@ -83,6 +83,12 @@ RUN apt-get update && apt-get install -y \
     linux-tools-common \
     linux-tools-generic
 
+RUN rm -rf /var/lib/apt/lists/* && \
+    echo "net.ipv4.neigh.default.gc_thresh1 = 1024" >> /etc/sysctl.conf && \
+    echo "net.ipv4.neigh.default.gc_thresh2 = 2048" >> /etc/sysctl.conf && \
+    echo "net.ipv4.neigh.default.gc_thresh3 = 4096" >> /etc/sysctl.conf && \
+    sysctl -a | grep -E 'netdev|backlog|weight'
+
  # && rm -rf /var/lib/apt/lists/* && \
     # echo "net.ipv6.conf.eth0.accept_ra = 2" >> /etc/sysctl.conf && \
     # echo "net.ipv6.conf.all.forwarding = 1" >> /etc/sysctl.conf && \
@@ -105,6 +111,11 @@ USER root
 WORKDIR /root/
 
 COPY ./nftables.rules /etc/nftables/nftables.rules
+COPY ./shell-helpers/pps.sh /tmp/pps.sh
+COPY ./shell-helpers/irq_balance_habrahabr.sh /tmp/irq_balance_habrahabr.sh
+
+RUN chmod +x /tmp/irq_balance_habrahabr.sh
+RUN chmod +x /tmp/pps.sh
 
 # COPY ./dump .
 # COPY ./dump.elf .
