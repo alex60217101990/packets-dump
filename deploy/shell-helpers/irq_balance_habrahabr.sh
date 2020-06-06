@@ -5,7 +5,7 @@ test "$ncpus" -gt 1 || exit 1
 
 n=0
 echo "start"
-for irq in `cat /proc/interrupts | grep eth | awk '{print $1}' | sed s/\://g`
+for irq in `cat /proc/interrupts | grep PCI | awk '{print $1}' | sed s/\://g`
 do
     echo $irq
     f="/proc/irq/$irq/smp_affinity"

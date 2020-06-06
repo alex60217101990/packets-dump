@@ -117,6 +117,8 @@ func queueDiff(readers []*bufio.Reader, files ...*os.File) (rx, tx uint32) {
 	return rx, tx
 }
 
+// TODO: implement irq_balance script and finished iptables forwarding interface...
+
 func AddForwardRule() {
 	ipt, err := iptables.New()
 	table := "nat"
